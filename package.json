@@ -1,0 +1,20 @@
+{
+  "name": "simulant",
+  "version": "0.0.1",
+  "description": "A cellular automatum",
+  "main": "Cell.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "biology",
+    "cells",
+    "cellular",
+    "automatum"
+  ],
+  "author": "Lennard Berger <lennard@berger.work>",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdoc": "^3.4.0"
+  }
+}
