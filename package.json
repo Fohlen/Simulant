@@ -2,7 +2,7 @@
   "name": "simulant",
   "version": "0.0.1",
   "description": "A cellular automatum",
-  "main": "Cell.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +16,8 @@
   "license": "MIT",
   "devDependencies": {
     "jsdoc": "^3.4.0"
+  },
+  "dependencies": {
+    "vectors": "hughsk/vectors"
   }
 }

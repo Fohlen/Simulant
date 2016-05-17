@@ -1,7 +1,7 @@
 /**
  * Represents a cell.
  * @constructor
- * @param {array} attributes
+ * @param {Attribute[]} attributes
  */
 function Cell(attributes) {
     this.attributes = {}; /* @private attributes */
@@ -13,7 +13,8 @@ function Cell(attributes) {
     
     /**
      * Spend the living costs for each attribute according to it's rule set.
-     * @function live
+     * @function
+     * @name Cell.live
      */
     this.live = function() {
         this.attributes.forEach(function(element, index) {
@@ -31,9 +32,10 @@ function Cell(attributes) {
     /**
      * The cell absorbs the given attribute(s).
      * In case there is a spill-over the cell will automatically distribute it's goods. 
-     * @function absorb
-     * @param {array} attributes
-     * @return {array} - Returns an array of [ {float} spill-over ] in the order of attributes given
+     * @function
+     * @name Cell.absorb
+     * @param {Attribute[]} attributes
+     * @return {float[]}  Returns an array of spill-over's in the order of attributes given
      */
     this.absorb = function(soak) {
         var res = {};

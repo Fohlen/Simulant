@@ -1,0 +1,22 @@
+{
+    "tags": {
+        "allowUnknownTags": false
+    },
+    "source": {
+        "include": [ "Attributes", "Cell.js", "Room.js", "Automat.js"],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "plugins": ["plugins/markdown"],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    },
+    "opts": {
+	  "readme": "README.md",
+      "encoding": "utf8",
+      "destination": "./doc/",
+      "recurse": true
+    }
+}
+

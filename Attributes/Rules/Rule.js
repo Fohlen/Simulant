@@ -1,7 +1,8 @@
 /**
  * Interface for classes that implement cellular rules.
- * When looping in the cellular automat each @see Attribute assigns a rule
+ * When looping in the cellular automat each Attribute assigns a rule
  * which defines it's living and transport habits.
+ * @see Attribute
  * @interface Rule
  */
 
