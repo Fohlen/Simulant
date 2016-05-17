@@ -45,3 +45,5 @@ function Automat(elements, room) {
         });
     }
 }
+
+module.exports = Automat();
