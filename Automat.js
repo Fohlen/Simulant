@@ -13,14 +13,25 @@ function Automat(elements, room) {
     /**
      * @function
      * @name Automat.fill
-     * @param {int} size - How many cells do we deal with?
+     * @param {Cell[]} cells - The cells we deal with?
+     * @todo Only 2D is currently supported
      */
-    this.fill = function(size) {
-
+    this.fill = function(cells) {
+        var rows = this.room.findRows(cells.length);
+        var i = 0;
+        
+        while (i < size) {
+            for (var y = 0; y < room[1]; y++) {
+                for (var x = room[0]; x > 0; x--) {
+                    this.room.push([x, y], cells[i]);
+                    i++;
+                }
+            }
+        }
     };
     
     // Call the constructor
-    this.fill(elements.length);
+    this.fill(elements);
     
     /**
      * Loops over all elements in the room
@@ -29,6 +40,8 @@ function Automat(elements, room) {
      * @name Automat.loop
      */
     this.loop = function() {
-        this.elements.forEach();
+        this.elements.forEach(function(element) {
+            element.live();
+        });
     }
 }

@@ -74,7 +74,7 @@ function Room(dimensions) {
         
         var coordinates = [];
         
-        // Use step to 2 so we interpolate the actual coordinate
+        // Use step size 2 so we interpolate the actual coordinate
         // TODO: This could probably be done in one loop
         // Anyhow I'm not sure if it'd be less performant
         if (this.dimensions == 2) {
@@ -141,6 +141,7 @@ function Room(dimensions) {
      * @return {int[]} Returns x/y/z row max 
      * 
      * @todo Currently only 2D is supported
+     * @todo Such functionality should be outsourced probably
      */
     
     this.findRows = function(size) {
