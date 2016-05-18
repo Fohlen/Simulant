@@ -2,9 +2,9 @@
   "name": "simulant",
   "version": "0.0.1",
   "description": "A cellular automatum",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [
     "biology",
@@ -15,7 +15,8 @@
   "author": "Lennard Berger <lennard@berger.work>",
   "license": "MIT",
   "devDependencies": {
-    "jsdoc": "^3.4.0"
+    "jsdoc": "^3.4.0",
+    "mocha": "^2.4.5"
   },
   "dependencies": {
     "vectors": "hughsk/vectors"

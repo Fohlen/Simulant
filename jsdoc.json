@@ -3,7 +3,7 @@
         "allowUnknownTags": false
     },
     "source": {
-        "include": [ "Attributes", "Cell.js", "Room.js", "Automat.js"],
+        "include": [ "src/" ],
         "includePattern": ".+\\.js(doc)?$",
         "excludePattern": "(^|\\/|\\\\)_"
     },
