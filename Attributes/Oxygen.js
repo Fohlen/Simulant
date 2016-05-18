@@ -1,12 +1,12 @@
 /**
  * @name Oxygen
- * @ŧype Attribute
+ * @type Attribute
  * 
  * @constructor
- * @type {Rule} Rule - the rule to use for Oxygen
+ * @param {Rule} rule - the rule to use for Oxygen
  */
 
-function Oxygen(rule) {
+var Oxygen = function(rule) {
     this.rule = rule;
     this.name = 'Oxygen';
     this.max = 1.2;
@@ -14,4 +14,4 @@ function Oxygen(rule) {
     this.cornucopia = 0;
 }
 
-module.exports = Oxygen(rule);
+module.exports = Oxygen;

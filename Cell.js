@@ -1,24 +1,30 @@
 /**
  * Represents a cell.
- * @constructor
- * @param {Attribute[]} attributes
  */
-function Cell(attributes) {
-    this.attributes = {}; /* @private attributes */
-    attributes.forEach(function(element) {
-        this.attributes[element.name] = element; // name = attribute
-    });
-    
-    this.alive = true; /* @member alive - A cell dies if one of it's attribute equals zero */
+var Cell = class {
+    /**
+     * @constructor
+     * @param {Attribute[]} attributes
+     */
+    constructor(attributes) {
+        this.attributes = new Map();
+        this.alive = true;
+        let self = this;
+        
+        attributes.forEach(function(element) {
+           self.attributes.set(element.name, element); 
+        });
+        
+    }
     
     /**
      * Spend the living costs for each attribute according to it's rule set.
      * @function
      * @name Cell.live
      */
-    this.live = function() {
+    live() {
         this.attributes.forEach(function(element, index) {
-            var cornucopia = this.attributes[index].cornucopia
+            var cornucopia = this.attributes[index].cornucopia;
 
             var spending = this.attributes[index].Rule.live(element);
             if (cornucopia > 0 && spending < cornucopia) {
@@ -37,7 +43,7 @@ function Cell(attributes) {
      * @param {Attribute[]} attributes
      * @return {float[]}  Returns an array of spill-over's in the order of attributes given
      */
-    this.absorb = function(soak) {
+    absorb(soak) {
         var res = {};
         
         attributes.forEach(function(element) {
@@ -46,7 +52,6 @@ function Cell(attributes) {
             res.push(spillover[1]);
         });
     }
-    
 }
 
 module.exports = Cell;

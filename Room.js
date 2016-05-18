@@ -14,21 +14,24 @@
  * The virtual room created to simulate cells
  * @class
  * @name Room
- * @constructor
- * @param {int} dimension - How many dimension should we operate at? Currently 2 simulation are supported.
  * 
  * @requires hughsk/vectors
  */
 
-function Room(dimensions) {
-    /** 
-     * @member
-     * @name Room.dimensions
-     * @type {int}
+var Room = class {
+    /**
+     * @constructor
+     * @param {int} dimension - How many dimension should we operate at? Currently 2 simulation are supported.
      */
-    this.dimensions = dimensions;
-    this.registry = new WeakMap(); /** @private */
-    
+    constructor(dimensions) {
+        /** 
+         * @member
+         * @name Room.dimensions
+         * @type {int}
+         */
+        this.dimensions = dimensions;
+        this.registry = new WeakMap(); /** @private */
+    }
     
     /**
      * Push a Cell to the Room
@@ -37,7 +40,7 @@ function Room(dimensions) {
      * @param {Coordinate} coordinate
      * @param {Cell} cell
      */
-    this.push = function(coordinate, cell) {
+    push(coordinate, cell) {
         this.registry.set(coordinate, cell);
     }
     
@@ -49,7 +52,7 @@ function Room(dimensions) {
      * @param {function} callback
      * @return Returns undefined if no cell exists at the given coordinate
      */
-    this.apply = function(coordinate, callback) {
+    apply(coordinate, callback) {
         var cell = this.registry.get(coordinate);
         if (cell === undefined) {
             // Nothing is done here
@@ -67,7 +70,7 @@ function Room(dimensions) {
      * @param {Coordinate} coordinate
      * @return {Coordinate[]}
      */
-    this.neighbours = function(coordinate) {
+    neighbours(coordinate) {
         // This is mathematically to be described as
         // P(p¹/p²) +- 1
         // P(p¹/p²/p³) +- 1
@@ -117,7 +120,7 @@ function Room(dimensions) {
     * 
     * a(n) = a(n – 1) + (n + 1) with a(1) = 3
     */
-    this.sequence2D = function(n) {
+    sequence2D(n) {
         if (n > 1) {
             return this.sequence2D(n - 1) + (n + 1);
         } else if (n == 1) {
@@ -136,7 +139,7 @@ function Room(dimensions) {
      * is a 2-dimensional field of 3x3 rows
      * 
      * @function
-     * @name Room.findRows
+     * @name Room.findTriangle
      * @param {int} size - How many cells we want to use
      * @return {int[]} Returns x/y/z row max 
      * 
@@ -144,25 +147,27 @@ function Room(dimensions) {
      * @todo Such functionality should be outsourced probably
      */
     
-    this.findRows = function(size) {
+    findTriangle(size) {
         if (this.dimensions == 2) {
-            var A, n = 1;
+            let A = 1;
+            let n = 0;
 
-            while (A < size) {
-                A = this.sequence2D(n);
+            do {
+                A = this.sequence2D(n + 1);
                 n++;
-            }
+            } while (size > A);
+            
+            console.log(n);
             
             // If the modulus of product and size equal zero
             // there is no leftover ..
             // Otherwise add 1 more row to x
-            var x = (A % s) > 0 ? n + 1 : n;
+            var x = (A % size) > 0 ? n + 1 : n;
             
-            var rows = [x, n];
-            
+            return [x, n];
         }
     }
 }
 
 
-module.exports = Room();
+module.exports = Room;

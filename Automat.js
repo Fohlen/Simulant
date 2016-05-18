@@ -1,14 +1,20 @@
 /**
  * A automat to execute cellular tasks
  * @name Automat
- * @constructor
- * @param {Cell[]} elements - Initialized cells
- * @param {Room} room - Room object to use
  */
 
-function Automat(elements, room) {
-    this.elements = []; /** @private */
-    this.room = room /** @private */
+var Automat = class {
+    /**
+     * @constructor
+     * @param {Cell[]} elements - Initialized cells
+     * @param {Room} room - Room object to use
+     */
+    constructor(elements, room) {
+        this.elements = new Set(); /** @private */
+        this.room = room /** @private */
+        
+        this.fill(elements);
+    }
     
     /**
      * @function
@@ -16,22 +22,20 @@ function Automat(elements, room) {
      * @param {Cell[]} cells - The cells we deal with?
      * @todo Only 2D is currently supported
      */
-    this.fill = function(cells) {
-        var rows = this.room.findRows(cells.length);
+    fill(cells) {
+        var rows = this.room.findTriangle(cells.length);
         var i = 0;
         
-        while (i < size) {
-            for (var y = 0; y < room[1]; y++) {
-                for (var x = room[0]; x > 0; x--) {
+        while (i < cells.length) {
+            for (var y = 0; y < rows[1]; y++) {
+                for (var x = rows[0]; x > 0; x--) {
                     this.room.push([x, y], cells[i]);
+                    this.elements.add([x, y]);
                     i++;
                 }
             }
         }
     };
-    
-    // Call the constructor
-    this.fill(elements);
     
     /**
      * Loops over all elements in the room
@@ -39,11 +43,15 @@ function Automat(elements, room) {
      * @function
      * @name Automat.loop
      */
-    this.loop = function() {
+    loop() {
+        let self = this;
+        
         this.elements.forEach(function(element) {
-            element.live();
+            self.room.apply(element, function(cell) {
+                cell.live();
+            });
         });
     }
 }
 
-module.exports = Automat();
+module.exports = Automat;
