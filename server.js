@@ -1,6 +1,5 @@
 /**
- * Following is a web server that serves our simulations
- * @todo Static file handling could be done using nginx - only use server.js for websocket
+ * A websocket that delivers Ice2JS
  */
 
 // Use yargs for easy command-line handling
@@ -14,17 +13,22 @@ var argv = require('yargs')
     .option('p', {
         alias: 'port',
         describe: 'Specify the server port',
-        default: 3000
+        default: 8080
     })
     .help('help')
     .argv
+
+var ws = require('nodejs-websocket');
+
+//Scream server example: "hi" -> "HI!!!"
+var server = ws.createServer(function (conn) {
+    console.log("New connection")
+    conn.on("text", function (str) {
+        console.log("Received "+str)
+        conn.sendText(str.toUpperCase()+"!!!")
+    })
+    conn.on("close", function (code, reason) {
+        console.log("Connection closed")
+    })
+}).listen(argv.port, argv.host);
     
-var express = require('express');
-var app = express();
-
-// Serve all the files from public (this is where our PaperJS application resides)
-app.use(express.static(__dirname + '/public'));
-
-app.listen(argv.port, argv.host, function () {
-    console.log('Simulant server running on port ' + argv.port);
-});
