@@ -4,7 +4,8 @@
   "description": "A cellular automatum",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "prepublish": "jsdoc -c jsdoc.conf"
   },
   "keywords": [
     "biology",
@@ -15,6 +16,7 @@
   "author": "Lennard Berger <lennard@berger.work>",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^3.5.0",
     "jsdoc": "^3.4.0",
     "mocha": "^2.4.5"
   },
