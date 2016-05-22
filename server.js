@@ -1,5 +1,5 @@
 /**
- * A websocket that delivers Ice2JS
+ * A websocket that delivers Simulant
  */
 
 // Use yargs for easy command-line handling
@@ -18,17 +18,11 @@ var argv = require('yargs')
     .help('help')
     .argv
 
-var ws = require('nodejs-websocket');
+var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: argv.port, host: argv.host });
 
-//Scream server example: "hi" -> "HI!!!"
-var server = ws.createServer(function (conn) {
-    console.log("New connection")
-    conn.on("text", function (str) {
-        console.log("Received "+str)
-        conn.sendText(str.toUpperCase()+"!!!")
-    })
-    conn.on("close", function (code, reason) {
-        console.log("Connection closed")
-    })
-}).listen(argv.port, argv.host);
-    
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+    ws.send('something');
+});

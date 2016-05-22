@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "start": "node server.js",
-    "prepublish": "jsdoc -c jsdoc.conf"
+    "preversion": "jsdoc -c jsdoc.conf"
   },
   "keywords": [
     "biology",
@@ -23,8 +23,8 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
-    "nodejs-websocket": "^1.6.0",
     "vectors": "hughsk/vectors",
+    "ws": "^1.1.0",
     "yargs": "^4.7.1"
   },
   "engines": {
