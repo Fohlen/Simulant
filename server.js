@@ -17,12 +17,24 @@ var argv = require('yargs')
     })
     .help('help')
     .argv
+    
+// Prepare a http.server object to use with http sessions before upgrade
+var util = require('util');
+var WebSocketServer = require('ws').Server;
+var uuid = require('uuid');
 
-var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: argv.port, host: argv.host });
+wss = new WebSocketServer({ port: argv.port, host: argv.host });
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
+        console.log(message);
+        message = JSON.parse(message);
+        if (message.type == 'uuid') {
+            ws.send(JSON.stringify({type:'uuid',uuid:uuid.v4()}));
+        }
     });
-    ws.send('something');
+});
+
+wss.on('message', function(data, flags) {
+    
 });

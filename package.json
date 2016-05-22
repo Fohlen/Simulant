@@ -23,6 +23,7 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
+    "uuid": "^2.0.2",
     "vectors": "hughsk/vectors",
     "ws": "^1.1.0",
     "yargs": "^4.7.1"
