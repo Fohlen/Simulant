@@ -17,16 +17,29 @@
 var url = 'ws://localhost:8080';
 var webSocket = new WebSocket(url);
 
+//var request = window.indexedDB.open('Simulant', 1);
+
+
+webSocket.onerror = function(event) {
+    // Do some error magic here
+};
+
 webSocket.onopen = function(event) {
     var msg = { type: 'uuid', data: sessionStorage.getItem('uuid')};
     webSocket.send(JSON.stringify(msg));
 };
 
-webSocket.addEventListener("message", function(event) {
-    message = JSON.parse(event.data);
-    if (message.type == 'uuid') sessionStorage.setItem('uuid', message.uuid);
+webSocket.addEventListener('message', function(event) {
+    try {
+        message = JSON.parse(event.data);
+    } finally {
+        switch (message.type) {
+            case 'uuid':
+                let id = sessionStorage.getItem('uuid');
+                if (id != message.data) sessionStorage.setItem('uuid', message.data);
+                break;
+            case 'item':
+                break;
+        }
+    }
 });
-
-window.globals = {
-    socket: webSocket
-}

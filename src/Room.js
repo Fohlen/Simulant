@@ -15,7 +15,6 @@
  * @class
  * @name Room
  * 
- * @requires hughsk/vectors
  */
 
 var Room = class {

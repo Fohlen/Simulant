@@ -1,7 +1,3 @@
-/**
- * A websocket that delivers Simulant
- */
-
 // Use yargs for easy command-line handling
 var argv = require('yargs')
     .usage('$0 [options]')
@@ -17,24 +13,58 @@ var argv = require('yargs')
     })
     .help('help')
     .argv
-    
-// Prepare a http.server object to use with http sessions before upgrade
-var util = require('util');
+
+/**
+ * WebSocket implementation that follows this schemata
+ * 
+ * - handshake a client with a unique UUID
+ *  - when a fresh handshake is delivered, spread all the cells
+ * - TODO: send update notifications using Cell/Event-API
+ */
 var WebSocketServer = require('ws').Server;
-var uuid = require('uuid');
+const uuid = require('uuid');
+//const TTL = 600000; // 10 minutes
+var sessions = new Array(); // Don't enable caching yet
+
+/**
+ * Synchronizes all cells to the given webSocket/client
+ * @function
+ * @name synchronize
+ * @param automat
+ * @param webSocket
+ * @returns
+ */
+function synchronize(stream) {
+    
+}
+
+/**
+ * Returns a JSON-encoded message
+ * @function
+ * @param type
+ * @param data
+ * @returns
+ */
+function prepareMessage(type, data) {
+    return JSON.stringify({type: type, data: data});
+}
 
 wss = new WebSocketServer({ port: argv.port, host: argv.host });
 
+// Handshaking functionality
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
-        console.log(message);
-        message = JSON.parse(message);
+        message = JSON.parse(message); // Decode the message
+        
         if (message.type == 'uuid') {
-            ws.send(JSON.stringify({type:'uuid',uuid:uuid.v4()}));
-        }
+            if (!sessions.includes(message.data)) {
+                let id = uuid.v4();
+                sessions.push(id);
+                ws.send(prepareMessage('uuid', id));
+                // synchronize(ws);
+            } else {
+                ws.send(prepareMessage('uuid', message.data));
+            }
+        }       
     });
-});
-
-wss.on('message', function(data, flags) {
-    
 });
