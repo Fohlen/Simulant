@@ -29,7 +29,12 @@ var Room = class {
          * @type {int}
          */
         this.dimensions = dimensions;
-        this.registry = new WeakMap(); /** @private */
+        /** 
+         * @member
+         * @name Room.registry
+         * @type WeakMap.<Coordinate, Cell>
+         */
+        this.registry = new WeakMap(); 
     }
     
     /**

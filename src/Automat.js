@@ -1,6 +1,5 @@
 /**
  * A automat to execute cellular tasks
- * @name Automat
  */
 
 var Automat = class {
@@ -31,8 +30,9 @@ var Automat = class {
         for (var y = 1; y < rows[1]; y++) {
             for (var x = rows[0]; x > 0; x--) {
                 if (i < cells.length) {
-                    this.room.push([x, y], cells[i]);
-                    this.elements.add([x, y]);
+                    let coordinate = [x, y]; // this placeholder is really important
+                    this.room.push(coordinate, cells[i]);
+                    this.elements.add(coordinate);
                     i++;  
                 }
             }

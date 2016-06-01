@@ -40,7 +40,6 @@ var room = new Simulant.Room(2);
 let cells = Array(9).fill(cell);
 var automat = new Simulant.Automat(cells, room);
 
-
 /**
  * Synchronizes all cells to the given webSocket/client
  * @function
@@ -48,20 +47,22 @@ var automat = new Simulant.Automat(cells, room);
  * @param webSocket
  */
 function synchronize(stream) {
-    let value;
-    for (value of automat.elements) {
-        stream.send(prepareMessage('item', value));
+    for (var value of automat.elements) {
+        // Find the cell
+        var c = automat.room.registry.get(value);
+        stream.send(prepareMessage('item', [value, Simulant.Color(c)]));
     }
 }
 
 /**
  * Returns a JSON-encoded message
  * @function
- * @param type
- * @param data
+ * @param {string} type
+ * @param {array|mixed} data 
  * @returns
  */
 function prepareMessage(type, data) {
+    // Instead objects we should use variadic functions!
     return JSON.stringify({type: type, data: data});
 }
 

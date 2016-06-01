@@ -49,12 +49,19 @@ webSocket.addEventListener('message', function(event) {
         switch (message.type) {
             case 'uuid':
                 let id = sessionStorage.getItem('uuid');
-                if (id != message.data) sessionStorage.setItem('uuid', message.data);
+                if (id != message.data) {
+                    sessionStorage.setItem('uuid', message.data);
+                    let transaction = window.db.transaction(['cells'], 'readwrite');
+                    let objectStore = transaction.objectStore('cells');
+                    let objectStoreRequest = objectStore.clear();
+                }
                 break;
             case 'item':
                 let transaction = window.db.transaction(['cells'], 'readwrite');
                 let objectStore = transaction.objectStore('cells');
-                request = objectStore.add(1, message.data);
+                // This should be handled with variadic messages
+                // Currently hardcoded: Coordinate, color
+                let request = objectStore.add(message.data[1], message.data[0]);
                 break;
         }
     }

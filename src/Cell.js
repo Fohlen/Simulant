@@ -19,6 +19,11 @@ var Cell = class {
     }
     
     /**
+     * @member Cell.attributes
+     * @type {Map.<string, Attribute>}
+     */
+    
+    /**
      * Spend the living costs for each attribute according to it's rule set.
      * @function
      * @name Cell.live
