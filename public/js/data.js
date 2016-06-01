@@ -27,6 +27,29 @@ request.onupgradeneeded = function(event){
 
 request.onsuccess = function(event) {
     window.db = event.target.result; // Use the global scope
+    
+    let transaction = window.db.transaction(['cells'], 'readonly');
+    let objectStore = transaction.objectStore('cells');
+    let cursorRequest = objectStore.openCursor();
+
+    var data = new Array();
+
+    cursorRequest.onsuccess = function(event){
+        if (event.target.result != null) {
+            data.push({key: event.target.result.key, value: event.target.result.value});
+            event.target.result.continue();
+        }
+    };
+    
+    var svg = d3.select('svg');
+    var circle = svg.selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+            .attr('r', 1)
+            .attr('cx', function(d) { return d.key[0] })
+            .attr('cy', function(d) { return d.key[1] })
+            .attr('style', function(d) { return 'fill:' + d.value })
 };
 
 //Define a default URL -> need a way for this in production
