@@ -1,5 +1,6 @@
 /**
  * Represents a cell.
+ * TODO: Add an evented API
  */
 var Cell = class {
     /**

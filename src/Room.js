@@ -109,13 +109,6 @@ var Room = class {
     * @private
     * Following function describes a mathematical sequence to find
     * triangles in a infinite rectangle (x and y axis).
-    * For example
-    * -
-    * --
-    * ---
-    * ----
-    * (4x4 rows)
-    * And returns it's amount of 1x1 boxes
     * 
     * a(n) = a(n – 1) + (n + 1) with a(1) = 3
     */
@@ -155,9 +148,7 @@ var Room = class {
                 A = this.sequence2D(n + 1);
                 n++;
             } while (size > A);
-            
-            console.log(n);
-            
+                        
             // If the modulus of product and size equal zero
             // there is no leftover ..
             // Otherwise add 1 more row to x

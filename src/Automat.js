@@ -26,12 +26,14 @@ var Automat = class {
         var rows = this.room.findTriangle(cells.length);
         var i = 0;
         
-        while (i < cells.length) {
-            for (var y = 0; y < rows[1]; y++) {
-                for (var x = rows[0]; x > 0; x--) {
+        // TODO: This is broken (doesn't arrange propperly)
+        // TODO: OUTSOURCE THIS FUNCTIONALITY
+        for (var y = 1; y < rows[1]; y++) {
+            for (var x = rows[0]; x > 0; x--) {
+                if (i < cells.length) {
                     this.room.push([x, y], cells[i]);
                     this.elements.add([x, y]);
-                    i++;
+                    i++;  
                 }
             }
         }
