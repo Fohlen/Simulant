@@ -27,15 +27,31 @@ const uuid = require('uuid');
 var sessions = new Array(); // Don't enable caching yet
 
 /**
+ * Automat logic
+ * - initialise 100 cells
+ */
+const Rule = require('./src/Attributes/Rules/Default');
+var Oxygen = require('./src/Attributes/Oxygen');
+var Simulant = require('./src'); // Full library include
+
+var ox = new Oxygen(Rule);
+var cell = new Simulant.Cell([ox]);
+var room = new Simulant.Room(2);
+let cells = Array(9).fill(cell);
+var automat = new Simulant.Automat(cells, room);
+
+
+/**
  * Synchronizes all cells to the given webSocket/client
  * @function
  * @name synchronize
- * @param automat
  * @param webSocket
- * @returns
  */
 function synchronize(stream) {
-    
+    let value;
+    for (value of automat.elements) {
+        stream.send(prepareMessage('item', value));
+    }
 }
 
 /**
@@ -61,7 +77,7 @@ wss.on('connection', function connection(ws) {
                 let id = uuid.v4();
                 sessions.push(id);
                 ws.send(prepareMessage('uuid', id));
-                // synchronize(ws);
+                synchronize(ws);
             } else {
                 ws.send(prepareMessage('uuid', message.data));
             }

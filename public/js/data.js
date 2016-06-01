@@ -13,12 +13,25 @@
  * on which a condition is likely a nested Array<float> represented using colors on our simulantCanvas.
  * -> TADA: visual representation of a complex cellular automatum
  */
-// Define a default URL -> need a way for this in production
+
+var request = window.indexedDB.open('Simulant', 1);
+request.onupgradeneeded = function(event){
+    window.db = event.target.result;
+    if(!window.db.objectStoreNames.contains('cells')){
+        store = window.db.createObjectStore('cells', {
+            multiEntry: true,
+            unique: true
+        });
+    }
+};
+
+request.onsuccess = function(event) {
+    window.db = event.target.result; // Use the global scope
+};
+
+//Define a default URL -> need a way for this in production
 var url = 'ws://localhost:8080';
 var webSocket = new WebSocket(url);
-
-//var request = window.indexedDB.open('Simulant', 1);
-
 
 webSocket.onerror = function(event) {
     // Do some error magic here
@@ -39,6 +52,9 @@ webSocket.addEventListener('message', function(event) {
                 if (id != message.data) sessionStorage.setItem('uuid', message.data);
                 break;
             case 'item':
+                let transaction = window.db.transaction(['cells'], 'readwrite');
+                let objectStore = transaction.objectStore('cells');
+                request = objectStore.add(1, message.data);
                 break;
         }
     }
