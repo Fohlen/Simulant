@@ -1,91 +1,75 @@
-/**
- * This is a brief explanation of how things work
- * When a WebSocket is opened we "handshake" with the server checking for a UUID in
- * the current sessionStorage. These are distributed by the server and stored with
- * a short TTL on server-side (to identify "unique" sessions).
- * When a fresh UUID is assigned the current simulation storage is cleared and
- * re-delivered by the server, being saved into IndexedDB (this can happen
- * asynchronously).
- * The webSocket.onmessage event is then bound to our PaperScript scope
- * whereas it is re-drawn with the Animation API.
- * The client comes with a minified representation of the Simulant framework
- * [Coordinate] = [condition]
- * on which a condition is likely a nested Array<float> represented using colors on our simulantCanvas.
- * -> TADA: visual representation of a complex cellular automatum
- */
-
-var request = window.indexedDB.open('Simulant', 1);
-request.onupgradeneeded = function(event){
-    window.db = event.target.result;
-    if(!window.db.objectStoreNames.contains('cells')){
-        store = window.db.createObjectStore('cells', {
-            multiEntry: true,
-            unique: true
-        });
-    }
-};
-
-request.onsuccess = function(event) {
-    window.db = event.target.result; // Use the global scope
-    
-    let transaction = window.db.transaction(['cells'], 'readonly');
-    let objectStore = transaction.objectStore('cells');
-    let cursorRequest = objectStore.openCursor();
-
-    var data = new Array();
-
-    cursorRequest.onsuccess = function(event){
-        if (event.target.result != null) {
-            data.push({key: event.target.result.key, value: event.target.result.value});
-            event.target.result.continue();
-        }
-    };
-    
-    var svg = d3.select('svg');
-    var circle = svg.selectAll('circle')
-        .data(data)
-        .enter()
-        .append('circle')
-            .attr('r', 1)
-            .attr('cx', function(d) { return d.key[0] })
-            .attr('cy', function(d) { return d.key[1] })
-            .attr('style', function(d) { return 'fill:' + d.value })
-};
-
-//Define a default URL -> need a way for this in production
+// This could be read from a config file (JSON)
+// one could use default arguments for openWebSocket
+// but it would require additional polyfilling (ES6 support)
 var url = 'ws://localhost:8080';
-var webSocket = new WebSocket(url);
 
-webSocket.onerror = function(event) {
-    // Do some error magic here
-};
+/**
+ * Returns an objectStore object. The underlaying transaction object has READWRITE flags.
+ * @function
+ * @name openDB
+ * @return Promise.{IDBobjectStore}
+ */
+function openDB() {
+    return new Promise(function(resolve, reject) {
+       var request = window.indexedDB.open('Simulant', 1);
+       
+       // Might be used in future to do migrations
+       request.onupgradeneeded = function(event){
+           if(!event.target.result.objectStoreNames.contains('cells')){
+               store = window.db.createObjectStore('cells', {
+                   multiEntry: true,
+                   unique: true
+               });
+           }
+       };
+       
+       request.onsuccess = function(event) {
+           let transaction = event.target.result.transaction(['cells'], 'readwrite');
+           let objectStorage = transaction.objectStore('cells');
+           resolve(objectStorage); // Return the objectStorage object whom we can work with
+           // Is this correct with the W3C standards?
+           // TODO: Check for TransactionInactiveError
+       };
+       
+       request.onerror = function() {
+           reject(Error('Database initialisation failed'));
+       };
+    });
+}
 
-webSocket.onopen = function(event) {
+
+// NOTE: This could be done in a class/function design but it get's really messy
+let webSocket = new WebSocket(url);
+
+webSocket.onopen = function() {
+    // This certainly ALWAYS work's without error tracing (since UUID/NULL is still valid JSON)
     var msg = { type: 'uuid', data: sessionStorage.getItem('uuid')};
     webSocket.send(JSON.stringify(msg));
-};
+}
 
-webSocket.addEventListener('message', function(event) {
-    try {
-        message = JSON.parse(event.data);
-    } finally {
-        switch (message.type) {
-            case 'uuid':
-                let id = sessionStorage.getItem('uuid');
-                if (id != message.data) {
-                    sessionStorage.setItem('uuid', message.data);
-                    let transaction = window.db.transaction(['cells'], 'readwrite');
-                    let objectStore = transaction.objectStore('cells');
-                    let objectStoreRequest = objectStore.clear();
-                }
-                break;
-            case 'item':
-                let transaction = window.db.transaction(['cells'], 'readwrite');
-                let objectStore = transaction.objectStore('cells');
-                // This should be handled with variadic messages
-                // Currently hardcoded: Coordinate, color
-                let request = objectStore.add(message.data[1], message.data[0]);
-                break;
-        }
+webSocket.onerror = function(error) {
+    throw error;
+}
+
+/**
+ * Handles message processing for the webSocket
+ * @function
+ * @name webSocket.onmessage
+ * @param event
+ */
+webSocket.onmessage = function(event) {
+    let message = JSON.parse(event.data);
+    console.log(message);
+    
+    // TODO: Add error proccessing
+    if (message.type == 'uuid') {
+        openDB().then(function(objectStore) {
+            window.sessionStorage.setItem('uuid', message.data);
+            let objectStoreRequest = objectStore.clear(); // Clear the indexedDB storage on handshake 
+        });
+    } else if (message.type == 'item') {
+        openDB().then(function(objectStore) {
+            let itemRequest = objectStore.put(message.data[1], message.data[0]);
+        });
     }
-});
+}
