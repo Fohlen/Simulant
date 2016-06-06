@@ -4,12 +4,13 @@
 var url = 'ws://localhost:8080';
 
 /**
- * Returns an objectStore object. The underlaying transaction object has READWRITE flags.
+ * Returns an objectStore object. By default the mode is readwrite.
  * @function
  * @name openDB
+ * @param {string} mode
  * @return Promise.{IDBobjectStore}
  */
-function openDB() {
+function openDB(mode = 'readwrite') {
     return new Promise(function(resolve, reject) {
        var request = window.indexedDB.open('Simulant', 1);
        
@@ -24,7 +25,7 @@ function openDB() {
        };
        
        request.onsuccess = function(event) {
-           let transaction = event.target.result.transaction(['cells'], 'readwrite');
+           let transaction = event.target.result.transaction(['cells'], mode);
            let objectStorage = transaction.objectStore('cells');
            resolve(objectStorage); // Return the objectStorage object whom we can work with
            // Is this correct with the W3C standards?
@@ -48,7 +49,7 @@ webSocket.onopen = function() {
 }
 
 webSocket.onerror = function(error) {
-    throw error;
+    //TODO: Add useful error handling here
 }
 
 /**
@@ -59,10 +60,9 @@ webSocket.onerror = function(error) {
  */
 webSocket.onmessage = function(event) {
     let message = JSON.parse(event.data);
-    console.log(message);
     
     // TODO: Add error proccessing
-    if (message.type == 'uuid') {
+    if (message.type == 'uuid' && message.data != window.sessionStorage.getItem('uuid')) {
         openDB().then(function(objectStore) {
             window.sessionStorage.setItem('uuid', message.data);
             let objectStoreRequest = objectStore.clear(); // Clear the indexedDB storage on handshake 
@@ -70,6 +70,9 @@ webSocket.onmessage = function(event) {
     } else if (message.type == 'item') {
         openDB().then(function(objectStore) {
             let itemRequest = objectStore.put(message.data[1], message.data[0]);
+
+            let evt = new CustomEvent('item', { coordinate: message.data[0] }); // Spread an event to window
+            window.dispatchEvent(evt);
         });
     }
 }
