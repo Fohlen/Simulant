@@ -1,13 +1,14 @@
+var EventEmitter = require('events');
 /**
  * Represents a cell.
- * TODO: Add an evented API
  */
-class Cell {
+class Cell extends EventEmitter {
     /**
      * @constructor
      * @param {Attribute[]} attributes
      */
     constructor(attributes) {
+        super(); // Make this an eventEmitter
         this.attributes = new Map();
         this.alive = true;
         let self = this;
@@ -35,8 +36,10 @@ class Cell {
             var spending = this.attributes[index].Rule.live(element);
             if (cornucopia > 0 && spending < cornucopia) {
                 this.attributes[index].cornucopia = cornucopia - spending; // Reduce cornucopia
+                this.emit('change', {attribute: index, cornucopia: this.attributes[index].cornucopia });
             } else {
                 this.alive = false; // Kill the cell
+                this.emit('dead');
             }
         });
     };
@@ -55,8 +58,11 @@ class Cell {
         attributes.forEach(function(element) {
             var spillover = this.attributes[element.name].Rule.absorb(element, element.cornucopia);
             this.attribute[element.name].cornucopia = this.attribute[element.name].cornucopia + spillover[0];
+            this.emit('change', {attribute: element.name, cornucopia: this.attributes[element.name].cornucopia });
             res.push(spillover[1]);
         });
+        
+        this.emit('spillover', {res});
     }
 }
 
