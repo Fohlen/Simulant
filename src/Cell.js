@@ -2,7 +2,7 @@
  * Represents a cell.
  * TODO: Add an evented API
  */
-var Cell = class {
+class Cell {
     /**
      * @constructor
      * @param {Attribute[]} attributes

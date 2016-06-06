@@ -17,7 +17,7 @@
  * 
  */
 
-var Room = class {
+class Room {
     /**
      * @constructor
      * @param {int} dimension - How many dimension should we operate at? Currently 2 simulation are supported.

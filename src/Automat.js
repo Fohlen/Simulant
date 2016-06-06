@@ -2,7 +2,7 @@
  * A automat to execute cellular tasks
  */
 
-var Automat = class {
+class Automat {
     /**
      * @constructor
      * @param {Cell[]} elements - Initialized cells
@@ -23,18 +23,16 @@ var Automat = class {
      */
     fill(cells) {
         var rows = this.room.findTriangle(cells.length);
-        var i = 0;
+        let i = 0; // This is WTF. Apparently there's no useful array iterator (such as .next) without prototyping. Well.
         
-        // TODO: This is broken (doesn't arrange propperly)
         // TODO: OUTSOURCE THIS FUNCTIONALITY
-        for (var y = 1; y < rows[1]; y++) {
-            for (var x = rows[0]; x > 0; x--) {
-                if (i < cells.length) {
-                    let coordinate = [x, y]; // this placeholder is really important
-                    this.room.push(coordinate, cells[i]);
-                    this.elements.add(coordinate);
-                    i++;  
-                }
+        for (var x = rows[0]; x > 0; x--) {
+            for (var y = rows[1]; y > 0; y--) {
+                if (y > x ) continue; 
+                let coordinate = [x, y]; // needs a placeholder variable since weakly shared keys are garbaged otherwise                
+                this.room.push(coordinate, cells[i]);
+                this.elements.add(coordinate);
+                i++;
             }
         }
     };
