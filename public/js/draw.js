@@ -1,6 +1,12 @@
 var svg = d3.select('svg');
 
-function loadItems() {
+/**
+ * Returns all cells from indexedDB
+ * @function
+ * @name loadCells
+ * @return {Promise.object[]}
+ */
+function loadCells() {
     return new Promise(function(resolve, reject) {
         openDB('readonly').then(function(objectStore) {
             let items = [];
@@ -17,15 +23,43 @@ function loadItems() {
     });
 }
 
+/**
+ * Returns the color of a given cell
+ * @function
+ * @name loadCellColor
+ * @return {string}
+ */
+function loadCellColor(coordinate) {
+    return new Promise(function(resolve, reject) {
+        openDB('readonly').then(function(objectStore) {
+           let request = objectStore.get(coordinate);
+           
+           request.onsuccess = function(event) {
+               resolve(event.target.result);
+           }
+           
+           request.onerror = function(event) {
+               reject(event);
+           }
+        });
+    }); 
+}
 
 window.addEventListener('load', function(event) {
-    loadItems().then(function(items) {
+    loadCells().then(function(items) {
         var circle = svg.selectAll('circle').data(items, function(d) { return d; });
         circle.enter().append('circle')
             .attr('cx', function(d) { return d[0]; })
             .attr('cy', function(d) { return d[1]; })
-            .attr('r', function(d) { return 1; })
-            .style('fill', function(d) { return 'blue'; });
+            .attr('r', 1);
+        
+        
+        d3.selectAll('circle').style('fill', function(d) {
+            let self = this;
+            loadCellColor(d).then(function(color) {
+               d3.select(self).style('fill', color); 
+            });            
+        });
     })
 });
 
@@ -33,7 +67,11 @@ window.addEventListener('load', function(event) {
 
 window.addEventListener('item', function(event) {
     openDB('readonly').then(function(objectStorage) {  
+        var circle = svg.selectAll('circle').filter(function(d) { return d == event.coordinate } );
         
+        objectStorage.get(coordinate).onsuccess = function(event) {
+            circle.style('fill', event.target.result);
+        }
     });
 });
 
