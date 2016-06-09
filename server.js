@@ -14,17 +14,9 @@ var argv = require('yargs')
     .help('help')
     .argv
 
-/**
- * WebSocket implementation that follows this schemata
- * 
- * - handshake a client with a unique UUID
- *  - when a fresh handshake is delivered, spread all the cells
- * - TODO: send update notifications using Cell/Event-API
- */
-var WebSocketServer = require('ws').Server;
+var cluster = require('cluster');
 const uuid = require('uuid');
-//const TTL = 600000; // 10 minutes
-var sessions = new Array(); // Don't enable caching yet
+const util = require('./src/util');
 
 /**
  * Automat logic
@@ -40,48 +32,49 @@ var room = new Simulant.Room(2);
 let cells = Array(9).fill(cell);
 var automat = new Simulant.Automat(cells, room);
 
-/**
- * Synchronizes all cells to the given webSocket/client
- * @function
- * @name synchronize
- * @param webSocket
- */
-function synchronize(stream) {
-    for (var value of automat.elements) {
-        // Find the cell
-        var c = automat.room.registry.get(value);
-        stream.send(prepareMessage('item', [value, Simulant.Color(c)]));
+// Application sessions
+var sessions = new Array();
+
+// The master proccess does the automat, the slaves serve the webSockets
+if(cluster.isMaster) {
+    let numWorkers = require('os').cpus().length;
+
+    //console.log('Master cluster setting up ' + numWorkers + ' workers...');
+
+    for(let i = 0; i < numWorkers; i++) {
+        cluster.fork();
     }
+
+} else {
+    /**
+     * WebSocket implementation that follows this schemata
+     * 
+     * - handshake a client with a unique UUID
+     *  - when a fresh handshake is delivered, spread all the cells
+     * - TODO: send update notifications using Cell/Event-API
+     */
+    var WebSocketServer = require('ws').Server;
+    //const TTL = 600000; // 10 minutes
+    
+    wss = new WebSocketServer({ port: argv.port, host: argv.host });
+
+    // Handshaking functionality
+    wss.on('connection', function connection(ws) {
+        ws.on('message', function incoming(message) {
+            message = JSON.parse(message); // Decode the message
+         
+            if (message.type == 'uuid') {
+                if (!sessions.includes(message.data)) {
+                    let id = uuid.v4();
+                    sessions.push(id);
+                    ws.send(util.prepareMessage('uuid', id));
+                    util.synchronize(automat, ws);
+                } else {
+                    ws.send(util.prepareMessage('uuid', message.data));
+                }
+            }       
+     });
+ });
 }
 
-/**
- * Returns a JSON-encoded message
- * @function
- * @param {string} type
- * @param {array|mixed} data 
- * @returns
- */
-function prepareMessage(type, data) {
-    // Instead objects we should use variadic functions!
-    return JSON.stringify({type: type, data: data});
-}
 
-wss = new WebSocketServer({ port: argv.port, host: argv.host });
-
-// Handshaking functionality
-wss.on('connection', function connection(ws) {
-    ws.on('message', function incoming(message) {
-        message = JSON.parse(message); // Decode the message
-        
-        if (message.type == 'uuid') {
-            if (!sessions.includes(message.data)) {
-                let id = uuid.v4();
-                sessions.push(id);
-                ws.send(prepareMessage('uuid', id));
-                synchronize(ws);
-            } else {
-                ws.send(prepareMessage('uuid', message.data));
-            }
-        }       
-    });
-});
